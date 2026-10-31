@@ -1,9 +1,28 @@
 # promptshield
 
+[![ci](https://github.com/kirtanbhatt10/promptshield/actions/workflows/ci.yml/badge.svg)](https://github.com/kirtanbhatt10/promptshield/actions/workflows/ci.yml)
+![python](https://img.shields.io/badge/python-3.11%20%7C%203.12%20%7C%203.13-3776AB)
+![dependencies](https://img.shields.io/badge/dependencies-0-success)
+![license](https://img.shields.io/badge/license-MIT-black)
+
 **A zero-dependency guardrail for LLM apps.** promptshield scans untrusted text
 *before* it reaches your model for prompt injection, and scans model output
 *after* it comes back for leaked secrets, personal data, system-prompt canaries
 and data-exfiltration links.
+
+It is the defensive counterpart to [Injektor](https://github.com/kirtanbhatt10),
+my LLM attack-testing CLI: Injektor finds the holes, promptshield helps close them.
+
+```text
+$ promptshield scan --file examples/attacks.txt
+verdict: BLOCK  score: 100/100  mode: input
+  [HIGH    ] instruction_override: Tries to override earlier instructions
+             evidence: ignore all previous instructions
+  [HIGH    ] tool_abuse: Asks the agent to send sensitive data somewhere
+             evidence: forward the chat history to
+  [MEDIUM  ] tool_abuse: Addresses the AI that will later read this content (indirect injection)
+             evidence: when the assistant reads this
+```
 
 ## Install
 
@@ -116,3 +135,17 @@ injection that no rule anticipates. Pair it with:
 - separating trusted instructions from untrusted content,
 - output encoding wherever model text is rendered.
 
+## Development
+
+```bash
+pip install -e ".[dev]"
+pytest -q
+ruff check . && ruff format --check .
+```
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) to add a detector and
+[SECURITY.md](SECURITY.md) to report a bypass.
+
+## License
+
+[MIT](LICENSE) © Kirtan Bhatt
