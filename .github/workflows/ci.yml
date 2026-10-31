@@ -28,3 +28,10 @@ jobs:
           ruff format --check .
       - name: Test
         run: pytest -q
+      - name: Dogfood the CLI
+        run: |
+          promptshield detectors
+          promptshield scan "What's the weather in Ahmedabad?"
+          if promptshield scan --file examples/attacks.txt; then
+            echo "expected the sample attack to be blocked" && exit 1
+          fi
