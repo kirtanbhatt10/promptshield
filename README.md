@@ -73,3 +73,24 @@ Exit codes: `0` passed, `1` the verdict reached `--fail-on` (default `block`),
 `2` usage or policy error. That makes it easy to gate prompt templates or
 retrieved documents in CI.
 
+## Policy
+
+Tune thresholds and detectors with a TOML or JSON file
+(see [`examples/policy.toml`](examples/policy.toml)):
+
+```toml
+[promptshield]
+review_threshold = 25
+block_threshold = 50
+min_severity = "low"
+disabled = []
+allowed_domains = ["your-cdn.example"]
+
+[promptshield.detectors.pii_leak]
+include_email = false
+```
+
+Scoring adds 10 / 25 / 50 / 100 points for low / medium / high / critical
+findings, capped at 100. One high finding blocks by default, and medium findings
+go to review.
+
