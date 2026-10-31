@@ -106,3 +106,13 @@ app.add_middleware(PromptShieldMiddleware, scanner=Scanner(), paths=("/chat",), 
 Blocked requests get a `400` JSON response with the scan result. Clean requests
 reach your route unchanged. Bodies are capped at 1 MB by default.
 
+## Limitations
+
+promptshield is a **defence-in-depth layer, not a guarantee**. Pattern-based
+detection raises the cost of an attack, but a determined attacker can phrase an
+injection that no rule anticipates. Pair it with:
+
+- least-privilege tools and human confirmation for anything irreversible,
+- separating trusted instructions from untrusted content,
+- output encoding wherever model text is rendered.
+
