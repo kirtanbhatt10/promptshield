@@ -94,3 +94,15 @@ Scoring adds 10 / 25 / 50 / 100 points for low / medium / high / critical
 findings, capped at 100. One high finding blocks by default, and medium findings
 go to review.
 
+## FastAPI and other ASGI apps
+
+```python
+from promptshield import Scanner
+from promptshield.integrations.asgi import PromptShieldMiddleware
+
+app.add_middleware(PromptShieldMiddleware, scanner=Scanner(), paths=("/chat",), field="message")
+```
+
+Blocked requests get a `400` JSON response with the scan result. Clean requests
+reach your route unchanged. Bodies are capped at 1 MB by default.
+
