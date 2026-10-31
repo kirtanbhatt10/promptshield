@@ -58,3 +58,18 @@ look-alikes, zero-width characters, odd spacing and leetspeak (`1gn0re`) are
 folded so obfuscated attacks still match. Evidence for secrets and PII is
 redacted so reports never re-leak what they found.
 
+## Command line
+
+```bash
+promptshield scan "Ignore previous instructions"           # exit 1 when blocked
+promptshield scan --file page.html --format html -o report.html
+cat reply.txt | promptshield scan --mode output --canary PS-9f2c1a7be04d3361
+promptshield scan --fail-on review --policy policy.toml "..."
+promptshield canary --prefix ACME
+promptshield detectors
+```
+
+Exit codes: `0` passed, `1` the verdict reached `--fail-on` (default `block`),
+`2` usage or policy error. That makes it easy to gate prompt templates or
+retrieved documents in CI.
+
