@@ -1,0 +1,49 @@
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[project]
+name = "promptshield"
+version = "0.1.0"
+description = "Prompt-injection and LLM output leak scanner for Python apps"
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+requires-python = ">=3.11"
+authors = [{ name = "Kirtan Bhatt", email = "kirtan11bhatt@gmail.com" }]
+keywords = ["llm", "security", "prompt-injection", "guardrails", "ai-safety", "pii"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Security",
+]
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "ruff>=0.6"]
+
+[project.scripts]
+promptshield = "promptshield.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/kirtanbhatt10/promptshield"
+Issues = "https://github.com/kirtanbhatt10/promptshield/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/promptshield"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+
+[tool.ruff]
+line-length = 130
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "SIM"]
+ignore = ["E501"]  # long regex patterns read better unwrapped
