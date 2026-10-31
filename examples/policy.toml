@@ -1,0 +1,17 @@
+# Example promptshield policy. Load with: promptshield scan --policy examples/policy.toml ...
+[promptshield]
+review_threshold = 25
+block_threshold = 50
+min_severity = "low"
+
+# Detectors to switch off entirely.
+disabled = []
+
+# Markdown images/links to these hosts (and their subdomains) are never flagged.
+allowed_domains = ["githubusercontent.com", "your-cdn.example"]
+
+[promptshield.detectors.invisible_text]
+zero_width_threshold = 5
+
+[promptshield.detectors.pii_leak]
+include_email = false
