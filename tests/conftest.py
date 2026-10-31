@@ -1,6 +1,12 @@
 import pytest
 
+from promptshield import Scanner
 from promptshield.normalize import normalize
+
+
+@pytest.fixture
+def scanner():
+    return Scanner()
 
 
 @pytest.fixture
