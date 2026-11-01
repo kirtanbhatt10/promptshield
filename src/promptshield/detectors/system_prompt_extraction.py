@@ -10,7 +10,7 @@ class SystemPromptExtraction(PatternDetector):
     description = "Requests to reveal, repeat or summarise the hidden system prompt."
     patterns = (
         (
-            r"\b(reveal|show|print|display|output|repeat|leak|dump|share|tell me|give me|what is|what are)\b[^.\n]{0,30}?"
+            r"\b(reveal|show|print|display|output|repeat|leak|dump|share|tell me|give me|what is|what are|what were|what was)\b[^.\n]{0,30}?"
             r"\b(your|the)\s+(system|initial|hidden|original|developer|secret|pre-?prompt)\s+"
             r"(prompt|instructions?|message|rules|configuration)\b",
             Severity.HIGH,

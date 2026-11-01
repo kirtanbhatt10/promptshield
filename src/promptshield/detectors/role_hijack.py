@@ -21,12 +21,18 @@ class RoleHijack(PatternDetector):
             "Asks the model to pretend it has no restrictions",
         ),
         (
+            r"\byou\s+(are|will\s+be|become)\b[^.\n]{0,60}?\b(with\s+no|without\s+(any\s+)?)\s*"
+            r"(restrictions|rules|filters|limits|guidelines|censorship|content\s+polic(y|ies))\b",
+            Severity.HIGH,
+            "Gives the model an identity without restrictions",
+        ),
+        (
             r"\b(role-?play|roleplay)\s+as\b[^.\n]{0,50}?\b(without|no)\s+(rules|restrictions|limits|filters)\b",
             Severity.HIGH,
             "Role-play framing used to drop restrictions",
         ),
         (
-            r"\byou\s+are\s+(now|no\s+longer)\s+(an?\s+)?(ai|assistant|chatbot|model|bound|restricted|limited|[a-z]+gpt)\b",
+            r"\byou\s+are\s+(now|no\s+longer)\s+(an?\s+)?([a-z]+\s+)?(ai|assistant|chatbot|model|bound|restricted|limited|[a-z]+gpt)\b",
             Severity.MEDIUM,
             "Tries to reassign the assistant's identity",
         ),

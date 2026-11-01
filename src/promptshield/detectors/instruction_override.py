@@ -16,6 +16,12 @@ class InstructionOverride(PatternDetector):
             "Tries to override earlier instructions",
         ),
         (
+            r"\b(ignore|disregard|forget)\s+(all\s+|everything\s+)?(of\s+)?(the\s+|that\s+)?(above|previous|prior|preceding)\b"
+            r"[^.\n]{0,10}?\b(and|then|now|instead)\s+(tell|give|show|print|reveal|output|say|write|do|act|respond|list|send)\b",
+            Severity.HIGH,
+            "Tells the model to drop the preceding context and do something else",
+        ),
+        (
             r"\b(do not|don't|never|stop)\s+(follow|obey|listen to|following|obeying)\s+(your|the|any)\s+"
             r"(rules|instructions|guidelines|system prompt|developers?)\b",
             Severity.HIGH,
