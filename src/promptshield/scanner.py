@@ -92,9 +92,17 @@ class Scanner:
             for finding in detector.scan(text, normalized)
             if finding.severity >= self.policy.min_severity
         ]
-        findings.sort(key=lambda f: (-f.severity, f.detector))
-        score = risk_score(findings)
-        return ScanResult(mode, tuple(findings), score, self._verdict(score))
+        return self.decide(findings, mode)
+
+    def decide(self, findings: Iterable[Finding], mode: str = INPUT) -> ScanResult:
+        """Score an arbitrary set of findings with this scanner's policy.
+
+        Used by the streaming, session and tool guards, which combine findings
+        from several scans into a single verdict.
+        """
+        ordered = sorted(findings, key=lambda f: (-f.severity, f.detector, f.message))
+        score = risk_score(ordered)
+        return ScanResult(mode, tuple(ordered), score, self._verdict(score))
 
     def scan_input(self, text: str) -> ScanResult:
         return self.scan(text, INPUT)

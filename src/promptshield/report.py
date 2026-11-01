@@ -65,3 +65,65 @@ def to_html(results: Sequence[ScanResult], title: str = "promptshield report") -
         + "".join(sections)
         + "</body></html>"
     )
+
+
+_SARIF_LEVEL = {"critical": "error", "high": "error", "medium": "warning", "low": "note", "info": "note"}
+
+
+def to_sarif(results: Sequence[ScanResult], uri: str = "stdin", source: str = "") -> str:
+    """Render results as SARIF 2.1.0 so GitHub code scanning shows them as alerts.
+
+    When ``source`` is given, each finding is pinned to the first line where its
+    evidence appears verbatim; otherwise it points at line 1.
+    """
+    lines = source.splitlines()
+
+    def line_of(evidence: str) -> int:
+        if evidence:
+            for number, line in enumerate(lines, 1):
+                if evidence in line:
+                    return number
+        return 1
+
+    rules: dict[str, dict] = {}
+    sarif_results = []
+    for result in results:
+        for f in result.findings:
+            rules.setdefault(
+                f.detector,
+                {"id": f.detector, "name": f.detector, "shortDescription": {"text": f.detector.replace("_", " ")}},
+            )
+            sarif_results.append(
+                {
+                    "ruleId": f.detector,
+                    "level": _SARIF_LEVEL[f.severity.name.lower()],
+                    "message": {"text": f"{f.message} (verdict {result.verdict}, score {result.score})"},
+                    "locations": [
+                        {
+                            "physicalLocation": {
+                                "artifactLocation": {"uri": uri},
+                                "region": {"startLine": line_of(f.evidence)},
+                            }
+                        }
+                    ],
+                    "properties": {"severity": f.severity.name.lower(), "mode": result.mode},
+                }
+            )
+    payload = {
+        "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
+        "version": "2.1.0",
+        "runs": [
+            {
+                "tool": {
+                    "driver": {
+                        "name": "promptshield",
+                        "version": __version__,
+                        "informationUri": "https://github.com/kirtanbhatt10/promptshield",
+                        "rules": list(rules.values()),
+                    }
+                },
+                "results": sarif_results,
+            }
+        ],
+    }
+    return json.dumps(payload, indent=2, ensure_ascii=False)
