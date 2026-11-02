@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "promptshield"
-version = "0.2.0"
+version = "0.2.1"
 description = "Prompt-injection and LLM output leak scanner for Python apps"
 readme = "README.md"
 license = "MIT"
@@ -13,7 +13,7 @@ requires-python = ">=3.11"
 authors = [{ name = "Kirtan Bhatt", email = "kirtan11bhatt@gmail.com" }]
 keywords = ["llm", "security", "prompt-injection", "guardrails", "ai-safety", "pii"]
 classifiers = [
-    "Development Status :: 4 - Beta",
+    "Development Status :: 5 - Production/Stable",
     "Environment :: Console",
     "Environment :: Web Environment",
     "Operating System :: OS Independent",

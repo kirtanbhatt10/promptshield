@@ -11,6 +11,10 @@
 *after* it comes back for leaked secrets, personal data, system-prompt canaries
 and data-exfiltration links.
 
+<p align="center">
+  <img src="docs/demo.svg" alt="promptshield blocking prompt injection, catching an OTP exfiltration image, scrubbing PII and benchmarking at F1 1.000" width="100%">
+</p>
+
 It is the defensive counterpart to [Injektor](https://github.com/kirtanbhatt10),
 my LLM attack-testing CLI: Injektor finds the holes, promptshield helps close them.
 
@@ -42,7 +46,7 @@ verdict: BLOCK  score: 100/100  mode: input
 ## Install
 
 ```bash
-pip install git+https://github.com/kirtanbhatt10/promptshield@v0.2.0
+pip install git+https://github.com/kirtanbhatt10/promptshield@v0.2.1
 # or the wheel attached to the GitHub release, or the sidecar image:
 docker run -p 8787:8787 ghcr.io/kirtanbhatt10/promptshield:latest
 ```

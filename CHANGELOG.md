@@ -4,6 +4,25 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [0.2.1] - 2026-11-02
+
+### Fixed
+
+- `markdown_exfil` (and therefore `scrub()`) missed short exfiltration values in
+  image and link URLs, such as a 6-digit OTP (`?otp=482913`) or a short base64
+  chunk. Values with 5+ digits, or base64 / hex / percent-encoded data, are now
+  flagged regardless of length, while ordinary values like `?w=1200` and
+  `?theme=dark` stay clean.
+
+### Added
+
+- Two benchmark samples covering short-value exfiltration and a benign sized image.
+- Animated terminal demo in the README.
+
+### Changed
+
+- The release workflow also runs when a release is published from the GitHub UI.
+
 ## [0.2.0] - 2026-11-01
 
 ### Added
