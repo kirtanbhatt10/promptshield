@@ -1,6 +1,6 @@
 """promptshield: prompt-injection and LLM output leak scanner."""
 
-__version__ = "0.2.0"
+__version__ = "0.2.1"
 
 from .canary import embed, make_canary  # noqa: E402
 from .finding import Finding, Severity  # noqa: E402
