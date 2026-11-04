@@ -15,7 +15,7 @@ and data-exfiltration links.
   <img src="docs/demo.svg" alt="promptshield blocking prompt injection, catching an OTP exfiltration image, scrubbing PII and benchmarking at F1 1.000" width="100%">
 </p>
 
-It is the defensive counterpart to [Injektor](https://github.com/kirtanbhatt10),
+It is the defensive counterpart to [Injektor](https://github.com/kirtanbhatt10/Injektor),
 my LLM attack-testing CLI: Injektor finds the holes, promptshield helps close them.
 
 Most guardrails stop at "scan a string, return a score". promptshield also
@@ -42,6 +42,17 @@ verdict: BLOCK  score: 100/100  mode: input
   [MEDIUM  ] tool_abuse: Addresses the AI that will later read this content (indirect injection)
              evidence: when the assistant reads this
 ```
+
+## Contents
+
+- [Install](#install) and [quick start](#quick-start)
+- [Detectors](#detectors)
+- [Agent tool firewall](#agent-tool-firewall), [streaming](#streaming),
+  [multi-turn sessions](#multi-turn-sessions), [spotlighting](#spotlighting-retrieved-content),
+  [scrubbing](#scrubbing-output)
+- [HTTP sidecar](#http-sidecar) and [command line](#command-line)
+- [Policy](#policy) and [FastAPI / ASGI](#fastapi-and-other-asgi-apps)
+- [Limitations](#limitations)
 
 ## Install
 
@@ -92,6 +103,7 @@ a `score` from 0 to 100 and the list of `findings`.
 | `canary_leak` | output | your system-prompt canary, even if spaced out or re-cased |
 | `secret_leak` | output | AWS, GitHub, OpenAI, Anthropic, Google, Slack, Stripe keys, private keys, JWTs |
 | `pii_leak` | output | Aadhaar (Verhoeff-checked), PAN, Indian mobile numbers, cards (Luhn-checked), email |
+| `boundary_escape` | input | fake closing tags and "END OF CONTEXT" markers used to break out of a data block |
 
 Before matching, input is normalized: full-width letters, Cyrillic/Greek
 look-alikes, zero-width characters, odd spacing and leetspeak (`1gn0re`) are
@@ -196,6 +208,9 @@ curl -s localhost:8787/v1/scan -H "Authorization: Bearer change-me" \
 
 Bodies are capped at 1 MB, scanned text is never logged, the bearer token is
 compared in constant time and the Docker image runs as an unprivileged user.
+Authentication is only enforced when a token is set, through
+`PROMPTSHIELD_TOKEN` or `--token`, so set one whenever the sidecar is reachable
+from other hosts (for Docker: `-e PROMPTSHIELD_TOKEN=...`).
 
 ## Command line
 
@@ -206,6 +221,7 @@ cat reply.txt | promptshield scan --mode output --canary PS-9f2c1a7be04d3361
 promptshield scan --fail-on review --policy policy.toml "..."
 promptshield scan --file prompts/system.md --format sarif -o promptshield.sarif
 promptshield scrub --file reply.txt --canary PS-9f2c1a7be04d3361
+promptshield scrub --file reply.txt --allow-domain cdn.acme.com --keep-emails --json
 promptshield spotlight --mode datamark --source "search result" --file page.txt
 promptshield bench --min-f1 0.95                            # exit 1 below the gate
 promptshield bench --corpus my_attacks.jsonl --json
