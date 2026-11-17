@@ -52,7 +52,7 @@ verdict: BLOCK  score: 100/100  mode: input
   [scrubbing](#scrubbing-output)
 - [HTTP sidecar](#http-sidecar) and [command line](#command-line)
 - [Policy](#policy) and [FastAPI / ASGI](#fastapi-and-other-asgi-apps)
-- [Limitations](#limitations)
+- [Limitations](#limitations) and [future roadmap](#future-roadmap)
 
 ## Install
 
@@ -282,6 +282,154 @@ injection that no rule anticipates. Pair it with:
   (`ToolGuard` enforces this, but only for the rules you write),
 - separating trusted instructions from untrusted content (`Spotlight`),
 - output encoding wherever model text is rendered.
+
+## Future roadmap
+
+The roadmap below describes **proposed work**, not functionality currently
+included in the released package. Priorities may change based on security
+research, user feedback and benchmark results. A roadmap item should not be
+considered complete until its tests, documentation and release notes are merged.
+
+### Phase 1 — Production visibility and policy control
+
+**Goal:** Make security decisions easier to understand, tune and operate without
+weakening the default-deny posture of agent tool calls.
+
+- **Structured audit events:** Add an opt-in event interface for scan results,
+  policy decisions, tool-call decisions and session lockouts. Redact secrets,
+  PII and raw sensitive content by default.
+- **Policy profiles:** Provide documented starter profiles such as
+  `strict`, `balanced` and `permissive`, while keeping explicit custom policies
+  available. Profiles must be transparent collections of settings, not hidden
+  scoring logic.
+- **Policy explanation:** Return stable reason codes and explain which rule,
+  threshold or allowlist caused an `allow`, `review`, `block`, `confirm` or
+  `deny` decision.
+- **Operational metrics:** Expose opt-in counters and latency measurements
+  without recording prompt contents or secret values.
+- **Configuration validation:** Add a command that validates policy files and
+  reports unknown keys, invalid values and conflicting settings before deploy.
+
+**Completion criteria**
+- Audit output is safe by default and has tests proving that sample secrets and
+  PII do not appear in emitted events.
+- Policy profiles have documented, reproducible settings.
+- Decision reason codes are stable and covered by tests.
+- Metrics collection is optional and does not change scan decisions.
+
+### Phase 2 — Stronger detection and evaluation
+
+**Goal:** Measure defensive quality against realistic, diverse attacks rather
+than relying on a small built-in smoke-test corpus.
+
+- **Expanded evaluation corpus:** Add labelled direct and indirect prompt
+  injections, multi-turn attacks, obfuscation, multilingual examples, tool
+  exfiltration attempts and benign hard negatives.
+- **Regression benchmark suite:** Track precision, recall, F1, false-positive
+  rate and latency by detector, severity and attack family.
+- **Threshold calibration:** Provide a repeatable workflow for choosing review
+  and block thresholds from a user's labelled corpus.
+- **Detector explainability:** Include concise, redacted evidence and stable
+  detector identifiers in machine-readable results.
+- **Fuzz and property testing:** Exercise Unicode normalization, encoded
+  payload handling, boundary parsing, URL validation and path validation with
+  generated inputs.
+
+**Completion criteria**
+- Every corpus entry has a label, category and provenance.
+- Benchmark reports include corpus size and class distribution.
+- CI catches unintended regressions against a versioned baseline.
+- False positives on benign hard negatives are reported, not hidden by a
+  single aggregate F1 score.
+
+### Phase 3 — Agent protocol and framework integrations
+
+**Goal:** Make PromptShield easier to place at real agent trust boundaries.
+
+- **MCP security integration:** Explore middleware or adapter support for
+  Model Context Protocol tool calls, with explicit tool policies, argument
+  inspection and human-confirmation decisions.
+- **Agent framework adapters:** Add optional integrations for selected agent
+  frameworks only where they can preserve PromptShield's security semantics.
+- **Reusable tool policies:** Support documented policy patterns for read-only
+  tools, external network access, file access and irreversible actions.
+- **Approval workflow hooks:** Define a small interface for applications to
+  pause, approve, reject or audit sensitive tool calls.
+- **Integration examples:** Publish end-to-end examples showing untrusted
+  retrieval, taint propagation, tool invocation and output scanning.
+
+**Completion criteria**
+- Integrations are optional and do not add dependencies to the core package.
+- Unknown tools remain denied unless explicitly configured.
+- Approval is fail-closed: missing, timed-out or failed approval does not
+  silently become permission.
+- Integration tests cover both allowed and denied tool calls.
+
+### Phase 4 — Enterprise deployment and operational hardening
+
+**Goal:** Make deployment, upgrades and incident response predictable.
+
+- **Deployment guidance:** Document reverse-proxy, TLS, secret management,
+  container networking, health checks and production configuration.
+- **Authentication and authorization options:** Evaluate scoped credentials,
+  key rotation and separate permissions for scan, scrub and administration
+  endpoints.
+- **Rate and resource limits:** Add configurable request, concurrency and
+  payload limits with clear failure responses.
+- **Compatibility guarantees:** Document API and policy compatibility rules,
+  deprecation windows and supported Python versions.
+- **Security release process:** Publish a security policy, supported-version
+  policy, vulnerability response expectations and signed release artifacts
+  where practical.
+
+**Completion criteria**
+- Production deployment examples use secure defaults and explain every
+  required secret.
+- Resource limits are tested under oversized and concurrent requests.
+- Compatibility and deprecation policies are documented.
+- Release checks cover tests, linting, package contents and container
+  configuration.
+
+### Longer-term research directions
+
+These are exploratory and should only be promoted into committed milestones
+after a threat model and measurable evaluation plan exist:
+
+- Optional semantic or model-assisted detection as a separate layer, never as
+  an implicit replacement for deterministic checks.
+- Cross-request and cross-agent taint propagation for distributed workflows.
+- Risk-based tool permissions that combine content provenance, tool impact and
+  explicit policy.
+- Privacy-preserving sharing of anonymized attack patterns and evaluation cases.
+- A visual policy and security-event explorer for teams operating agent systems.
+
+### Suggested release sequence
+
+| Target | Main outcome | Release gate |
+| --- | --- | --- |
+| `0.3.x` | Audit events, reason codes, policy validation and profiles | Redaction tests and policy compatibility tests |
+| `0.4.x` | Expanded corpus, regression benchmarks and fuzz testing | Reproducible metrics and documented false-positive rates |
+| `0.5.x` | First optional agent-protocol/framework integration | Fail-closed integration tests and no core dependency increase |
+| `0.6.x` | Deployment hardening, limits and operational guidance | Security and load-test checklist |
+| `1.0.0` | Stable public API and documented compatibility policy | Threat-model review, release checklist and API stability review |
+
+Version numbers are planning suggestions, not release commitments.
+
+### How roadmap work should be accepted
+
+Every new security feature should include:
+
+1. A short threat model describing the attacker, trust boundary and protected
+   asset.
+2. A documented policy for safe defaults and failure behavior.
+3. Unit tests, negative tests and regression cases for bypass attempts.
+4. A benchmark update when detection quality or latency can change.
+5. Documentation showing both a secure integration and its limitations.
+6. A release note that distinguishes verified behavior from best-effort
+   protection.
+
+Contributions should avoid silently changing existing policy semantics. Any
+intentional behavior change should include migration notes and tests.
 
 ## Development
 
